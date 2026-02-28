@@ -1,0 +1,124 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 37 53% 96%;
+    --foreground: 16 21% 14%;
+
+    --card: 37 53% 98%;
+    --card-foreground: 16 21% 14%;
+
+    --popover: 37 53% 98%;
+    --popover-foreground: 16 21% 14%;
+
+    --primary: 18 52% 53%;
+    --primary-foreground: 37 53% 98%;
+
+    --secondary: 156 14% 54%;
+    --secondary-foreground: 37 53% 98%;
+
+    --muted: 30 20% 90%;
+    --muted-foreground: 16 12% 45%;
+
+    --accent: 30 52% 64%;
+    --accent-foreground: 16 21% 14%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 37 53% 98%;
+
+    --border: 30 20% 88%;
+    --input: 30 20% 88%;
+    --ring: 18 52% 53%;
+
+    --radius: 1rem;
+
+    --sidebar-background: 37 53% 96%;
+    --sidebar-foreground: 16 21% 14%;
+    --sidebar-primary: 18 52% 53%;
+    --sidebar-primary-foreground: 37 53% 98%;
+    --sidebar-accent: 156 14% 54%;
+    --sidebar-accent-foreground: 37 53% 98%;
+    --sidebar-border: 30 20% 88%;
+    --sidebar-ring: 18 52% 53%;
+
+    /* Custom tokens */
+    --gold: 30 52% 64%;
+    --sage: 156 14% 54%;
+    --terracotta: 18 52% 53%;
+    --deep-brown: 16 21% 14%;
+    --warm-white: 37 53% 98%;
+  }
+
+  .dark {
+    --background: 16 21% 10%;
+    --foreground: 37 53% 96%;
+    --card: 16 21% 13%;
+    --card-foreground: 37 53% 96%;
+    --popover: 16 21% 13%;
+    --popover-foreground: 37 53% 96%;
+    --primary: 18 52% 58%;
+    --primary-foreground: 16 21% 10%;
+    --secondary: 156 14% 40%;
+    --secondary-foreground: 37 53% 96%;
+    --muted: 16 15% 20%;
+    --muted-foreground: 30 15% 60%;
+    --accent: 30 52% 58%;
+    --accent-foreground: 37 53% 96%;
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 37 53% 96%;
+    --border: 16 15% 22%;
+    --input: 16 15% 22%;
+    --ring: 18 52% 58%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: 'DM Serif Display', Georgia, serif;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: 'DM Serif Display', Georgia, serif;
+  }
+
+  .font-body {
+    font-family: 'DM Sans', system-ui, sans-serif;
+  }
+
+  .ios-card {
+    @apply bg-card rounded-2xl shadow-sm border border-border/50;
+  }
+
+  .ios-sheet {
+    @apply bg-card rounded-t-3xl shadow-lg;
+  }
+
+  .safe-bottom {
+    padding-bottom: max(env(safe-area-inset-bottom, 0px), 1rem);
+  }
+
+  .safe-top {
+    padding-top: max(env(safe-area-inset-top, 0px), 0.75rem);
+  }
+
+  .gold-shimmer {
+    background: linear-gradient(135deg, hsl(30 52% 64%), hsl(30 60% 72%), hsl(30 52% 64%));
+  }
+}
