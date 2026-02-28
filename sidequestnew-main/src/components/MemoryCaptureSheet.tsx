@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { X, Camera, Globe, Lock } from 'lucide-react';
+import { X, Camera, Globe, Lock, Loader2 } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 import { Memory, Visibility } from '@/types';
 
@@ -13,20 +13,72 @@ interface Props {
 export default function MemoryCaptureSheet({ spotId, spotName, onClose }: Props) {
   const [caption, setCaption] = useState('');
   const [visibility, setVisibility] = useState<Visibility>('private');
+  const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const { addMemory, addPoints, user } = useApp();
 
-  const handleSave = () => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const selectedInfo = e.target.files[0];
+      setFile(selectedInfo);
+      setPreview(URL.createObjectURL(selectedInfo));
+    }
+  };
+
+  const handleSave = async () => {
+    let finalMediaUrl = '';
+
+    if (file) {
+      setUploading(true);
+      try {
+        const ext = file.name.split('.').pop();
+        const filename = `mem_${Date.now()}.${ext}`;
+
+        // 1. Get presigned URL from backend
+        const urlRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/vault/sign`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ filename, contentType: file.type })
+        });
+
+        if (!urlRes.ok) throw new Error('Failed to get upload URL');
+
+        const { signedUrl, path } = await urlRes.json();
+
+        // 2. Upload file directly to Supabase
+        const uploadRes = await fetch(signedUrl, {
+          method: 'PUT',
+          headers: { 'Content-Type': file.type },
+          body: file
+        });
+
+        if (!uploadRes.ok) throw new Error('Failed to upload image');
+
+        finalMediaUrl = path; // store the path or public URL depending on backend setup
+      } catch (err) {
+        console.error("Upload failed", err);
+        // Fallback for demo
+        finalMediaUrl = preview || '';
+      } finally {
+        setUploading(false);
+      }
+    }
+
     const memory: Memory = {
       id: 'm_' + Date.now(),
       userId: user.id,
       spotId,
-      mediaUrl: '',
+      mediaUrl: finalMediaUrl,
       caption,
       visibility,
       createdAt: new Date().toISOString(),
       likes: 0,
       spotName,
     };
+
     addMemory(memory);
     if (visibility === 'public') addPoints(10);
     onClose();
@@ -57,10 +109,27 @@ export default function MemoryCaptureSheet({ spotId, spotName, onClose }: Props)
 
         <p className="text-xs text-muted-foreground mb-4">📍 {spotName}</p>
 
-        {/* Photo upload placeholder */}
-        <button className="w-full h-32 rounded-2xl border-2 border-dashed border-border flex flex-col items-center justify-center gap-2 mb-4">
-          <Camera className="text-muted-foreground" size={24} />
-          <span className="text-xs text-muted-foreground">Tap to add photo</span>
+        {/* Photo upload */}
+        <input
+          type="file"
+          accept="image/*"
+          className="hidden"
+          ref={fileInputRef}
+          onChange={handleFileChange}
+        />
+
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          className="w-full h-32 rounded-2xl border-2 border-dashed border-border flex flex-col items-center justify-center gap-2 mb-4 overflow-hidden relative"
+        >
+          {preview ? (
+            <img src={preview} alt="Preview" className="w-full h-full object-cover" />
+          ) : (
+            <>
+              <Camera className="text-muted-foreground" size={24} />
+              <span className="text-xs text-muted-foreground">Tap to add photo</span>
+            </>
+          )}
         </button>
 
         {/* Caption */}
@@ -89,9 +158,10 @@ export default function MemoryCaptureSheet({ spotId, spotName, onClose }: Props)
 
         <button
           onClick={handleSave}
-          className="w-full py-3.5 rounded-2xl bg-primary text-primary-foreground font-semibold text-sm active:scale-[0.98] transition-transform"
+          disabled={uploading}
+          className="w-full py-3.5 rounded-2xl bg-primary text-primary-foreground font-semibold text-sm active:scale-[0.98] transition-transform flex justify-center items-center gap-2"
         >
-          Save Memory
+          {uploading ? <Loader2 size={16} className="animate-spin" /> : "Save Memory"}
         </button>
       </motion.div>
     </motion.div>

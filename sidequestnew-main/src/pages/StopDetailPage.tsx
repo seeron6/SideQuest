@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { ChevronLeft, CheckCircle, Camera, MapPin } from 'lucide-react';
 import { seedSpots } from '@/data/seedData';
 import { useState } from 'react';
@@ -9,11 +9,14 @@ import { useApp } from '@/context/AppContext';
 export default function StopDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [showMemory, setShowMemory] = useState(false);
   const { addPoints } = useApp();
 
-  const spot = seedSpots.find(s => s.id === id);
-  if (!spot) return <div className="p-10 text-center text-muted-foreground">Spot not found</div>;
+  const passedSpot = location.state?.spot;
+  const spot = passedSpot || seedSpots.find(s => s.id === id);
+
+  if (!spot) return <div className="p-10 text-center text-muted-foreground mt-20">Spot not found</div>;
 
   return (
     <div className="min-h-screen bg-background">

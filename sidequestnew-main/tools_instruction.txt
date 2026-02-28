@@ -1,0 +1,2 @@
+CRITICAL INSTRUCTION 1: Use specific tools. (a) No cat for files (b) No grep in bash (c) No ls/cat/grep/sed
+CRITICAL INSTRUCTION 2: Think of specific tools before generic ones.

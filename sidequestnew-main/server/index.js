@@ -20,10 +20,13 @@ const express = require("express");
 const { findWaypoints } = require("./navigator");
 const { createPresignedUploadUrl } = require("./vault");
 const { mintBadge } = require("./rewards");
+const { generateVoice } = require("./voiceController");
 
+const cors = require("cors");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.use(cors());
 app.use(express.json());
 
 // ── Health check ─────────────────────────────────────────────────────────────
@@ -694,9 +697,12 @@ app.post("/rewards/mint", async (req, res) => {
   }
 });
 
+// ── POST /voice ───────────────────────────────────────────────────────────────
+app.post("/voice", generateVoice);
+
 // ── Start ─────────────────────────────────────────────────────────────────────
-app.listen(PORT, () => {
-  console.log(`✅  SideQuest server running on http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`✅  SideQuest server running on http://0.0.0.0:${PORT}`);
   console.log(`🗺️   Demo page:      http://localhost:${PORT}/demo`);
   console.log(`🧪  Maps test page: http://localhost:${PORT}/test-maps`);
 });
